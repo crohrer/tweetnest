@@ -8,7 +8,7 @@
 	mb_language("uni");
 	mb_internal_encoding("UTF-8");
 	
-	define("TWEET_NEST", "0.8.3"); // Version number
+	define("TWEET_NEST", "0.8.2"); // Version number
 	
 	require "config.php";
 	if(empty($config['twitter_screenname'])){ header("Location: ./setup.php"); exit; }
@@ -38,6 +38,7 @@
 	$search = new TweetNestSearch();
 	
 	// Outputting various generic parts
+	require "emoji.php";
 	require "html.php";
 	
 	// Extensions
@@ -48,13 +49,13 @@
 	$filterMode        = "search";
 	$home              = false;
 	$jQueryVersion     = "1.5.1";
+	$isSearch          = false;
 	
 	// Getting database time offset
-	$dbtQ = $db->query("SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) AS `diff`");
+	$dbtQ = $db->query("SELECT TIME_FORMAT(NOW() - UTC_TIMESTAMP(), '%H%i') AS `diff`");
 	$dbtR = $db->fetch($dbtQ);
 	
-	$dbOffset          = date("Z") - $dbtR['diff'];
-	if(!is_numeric($dbOffset)){ $dbOffset = 0; }
+	$dbOffset          = date("Z") - ($dbtR['diff'] * 36); if(!is_numeric($dbOffset)){ $dbOffset = 0; }
 	$dbOffset          = $dbOffset >= 0 ? "+" . $dbOffset : $dbOffset; // Explicit positivity/negativity
 	
 	global $db, $twitterApi, $search, $selectedDate, $highlightedMonths, $filterMode, $home, $dbOffset;
